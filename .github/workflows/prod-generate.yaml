@@ -1,0 +1,43 @@
+name: PROD - Generate, Tag & Publish
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: Generate Client Library and publish to GitHub Packages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate Spring Client
+        uses: openapi-generators/openapitools-generator-action@v1.2.0
+        with:
+          generator: spring
+          openapi-file: openapi.yaml
+          config-file: config.yaml
+          command-args: -t /github/workspace/templates/spring-boot
+
+      - name: Tag version
+        id: autotagger
+        uses: butlerlogic/action-autotag@stable
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          strategy: regex
+          root: /github/workspace/spring-client/pom.xml
+          regex_pattern: '<version>([^<]+)<'
+
+      - name: Set up Java for publishing to GitHub Packages
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Publish to GitHub Packages
+        run: |
+          cd spring-client
+          mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

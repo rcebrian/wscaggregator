@@ -1,0 +1,23 @@
+library: spring-boot
+annotationLibrary: swagger2
+
+groupId: com.fourthhub.backend.wscaggregator
+artifactId: api
+
+sourceFolder: src/main/java
+basePackage: com.fourthhub.backend.wscaggregator.users
+apiPackage: com.fourthhub.backend.wscaggregator.users.service
+modelPackage: com.fourthhub.backend.wscaggregator.users.domain.dto
+
+modelNameSuffix: Dto
+booleanGetterPrefix: is
+hideGenerationTimestamp: true
+useTags: true
+
+generateSupportingFiles: false
+skipDefaultInterface: true
+openApiNullable: false
+interfaceOnly: true
+useBeanValidation: true
+dateLibrary: java8
+java8: true

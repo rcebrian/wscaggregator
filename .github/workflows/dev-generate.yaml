@@ -1,0 +1,36 @@
+name: DEV - Generate & Publish Snapshot
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: Generate Client Library and publish to GitHub Packages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate Spring Client
+        uses: openapi-generators/openapitools-generator-action@v1.2.0
+        with:
+          generator: spring
+          openapi-file: openapi.yaml
+          config-file: config.yaml
+          command-args: >
+            -p snapshotVersion=true
+            -t /github/workspace/templates/spring-boot
+
+      - name: Set up Java for publishing to GitHub Packages
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Publish to GitHub Packages
+        run: |
+          cd spring-client
+          mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
